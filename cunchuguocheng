@@ -1,0 +1,83 @@
+REATE OR REPLACE FUNCTION "public"."get_searchs_result_by_tid_orderby"("tid" uuid, "base_uri" varchar, "base_cam_uri" varchar, "page" int4, "page_size" int4, "start_time" timestamp, "stop_time" timestamp,"orderby" varchar)
+  RETURNS SETOF "public"."searchs_history_item" AS $BODY$
+
+declare
+	v_rec searchs_history_item%rowtype;
+	"start" integer;
+begin
+	"start" := ( "page" - 1) * "page_size";
+	
+	if ("orderby" = 'similarity') then
+		-- Sort by similarity
+			if sec = 0 then
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time between "start_time" and "stop_time") order by similarity desc limit "page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		else
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time > ts_offset and capture_time between "start_time" and "stop_time") order by similarity desc limit 		"page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		end if;
+
+	elsif ("orderby" = 'ts-asc') then
+		-- Sort by ts-asc
+			if sec = 0 then
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time between "start_time" and "stop_time") order by similarity desc limit "page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		else
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time > ts_offset and capture_time between "start_time" and "stop_time") order by similarity desc limit "page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		end if;
+
+	elsif("orderby" = 'ts-desc') then
+		-- Sort by ts-desc
+			if sec = 0 then
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time between "start_time" and "stop_time") order by similarity desc limit "page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		else
+			for v_rec in (
+				select comp_id, cid,  ("base_cam_uri" || '/' || cid || '/' || url_match_image) cam_file, 
+					("base_uri" || '/' || url_target_image) src_image, 
+					("base_uri" || '/' || url_target_video) src_video, offset_in_video offset_video,
+					similarity, capture_time ts, url_target_image
+				from compare_result_store
+				where task_id = tid and capture_time > ts_offset and capture_time between "start_time" and "stop_time") order by similarity desc limit "page_size" offset "start" loop
+				return next v_rec;
+			end loop;
+		end if;
+	end if;
+end;
+$BODY$ LANGUAGE plpgsql;
